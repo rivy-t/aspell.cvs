@@ -156,7 +156,6 @@ const PossibleOption possible_options[] = {
   OPTION("personal",         'p', 1),
   OPTION("ignore",           'W', 1),
   OPTION("lang",             'l', 1),
-  OPTION("encoding",         'T', 1),
   OPTION("backup",           'b', 0),
   OPTION("dont-backup",      'x', 0),
   OPTION("run-together",     'C', 0),
@@ -188,7 +187,7 @@ const PossibleOption possible_options[] = {
   COMMAND("create", '\0', 1),
   COMMAND("merge",  '\0', 1),
 
-  ISPELL_COMP('S',0), ISPELL_COMP('w',1),
+  ISPELL_COMP('S',0), ISPELL_COMP('w',1), ISPELL_COMP('T',1),
 
   {"",'\0'}, {"",'\0'}
 };
