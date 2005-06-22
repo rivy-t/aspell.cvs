@@ -4,18 +4,14 @@
 // license along with this library if you did not you can find
 // it at http://www.gnu.org/.
 
-#include <stdio.h>
+//#include <stdio.h>
 //#define DEBUG {fprintf(stderr,"File: %s(%i)\n",__FILE__,__LINE__);}
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#ifdef WIN32PORT
-#include <windows.h>// GetModuleFilename
-#include <shlobj.h> // SHGetSpecialFolderLocation
-extern void * get_module_handle();
-#endif
-#include "settings.h"
+
 #include "dirs.h"
+#include "settings.h"
 
 #ifdef USE_LOCALE
 # include <locale.h>
@@ -83,8 +79,8 @@ namespace acommon {
   typedef Notifier * NotifierPtr;
   
   Config::Config(ParmStr name,
-                 const KeyInfo * mainbegin, 
-                 const KeyInfo * mainend)
+		 const KeyInfo * mainbegin, 
+		 const KeyInfo * mainend)
     : name_(name)
     , first_(0), insert_point_(&first_), others_(0)
     , committed_(true), attached_(false)
@@ -171,7 +167,7 @@ namespace acommon {
     for(; i != end; ++i) {
       Notifier * tmp = (*i)->clone(this);
       if (tmp != 0)
-        notifier_list.push_back(tmp);
+	notifier_list.push_back(tmp);
     }
   }
 
@@ -210,7 +206,7 @@ namespace acommon {
   }
 
   void Config::set_filter_modules(const ConfigModule * modbegin, 
-                                  const ConfigModule * modend)
+				  const ConfigModule * modend)
   {
     assert(filter_modules_ptrs.empty());
     filter_modules.clear();
@@ -218,7 +214,7 @@ namespace acommon {
   }
 
   void Config::set_extra(const KeyInfo * begin, 
-                               const KeyInfo * end) 
+			       const KeyInfo * end) 
   {
     extra_begin = begin;
     extra_end   = end;
@@ -280,7 +276,7 @@ namespace acommon {
   }
 
   bool Config::replace_notifier(const Notifier * o, 
-                                      Notifier * n) 
+				      Notifier * n) 
   {
     Vector<Notifier *>::iterator i   = notifier_list.begin();
     Vector<Notifier *>::iterator end = notifier_list.end();
@@ -439,7 +435,7 @@ namespace acommon {
   }
 
   PosibErr<void> Config::retrieve_list(ParmStr key, 
-                                       MutableContainer * m) const
+				       MutableContainer * m) const
   {
     RET_ON_ERR_SET(keyinfo(key), const KeyInfo *, ki);
     if (ki->type != KeyInfoList) return make_err(key_not_list, ki->name);
@@ -450,24 +446,24 @@ namespace acommon {
   }
 
   static const KeyInfo * find(ParmStr key, 
-                              const KeyInfo * i, 
-                              const KeyInfo * end) 
+			      const KeyInfo * i, 
+			      const KeyInfo * end) 
   {
     while (i != end) {
       if (strcmp(key, i->name) == 0)
-        return i;
+	return i;
       ++i;
     }
     return i;
   }
 
   static const ConfigModule * find(ParmStr key, 
-                                   const ConfigModule * i, 
-                                   const ConfigModule * end) 
+				   const ConfigModule * i, 
+				   const ConfigModule * end) 
   {
     while (i != end) {
       if (strcmp(key, i->name) == 0)
-        return i;
+	return i;
       ++i;
     }
     return i;
@@ -490,8 +486,8 @@ namespace acommon {
 
       String k(s, h - s);
       const ConfigModule * j = acommon::find(k,
-                                             filter_modules.pbegin(),
-                                             filter_modules.pend());
+					     filter_modules.pbegin(),
+					     filter_modules.pend());
       
       if (j == filter_modules.pend() && load_filter_hook && committed_) {
         // FIXME: This isn't quite right
@@ -583,8 +579,6 @@ namespace acommon {
 
 #endif
 
-  // Return the default value for the given key.  Expand the
-  // configuration string.
   String Config::get_default(const KeyInfo * ki) const
   {
     bool   in_replace = false;
@@ -600,64 +594,22 @@ namespace acommon {
         if (entry = lookup("actual-lang"), entry) {
           return entry->value;
         } else if (have("master")) {
-          final_str = "<unknown>";
-        } else {
-          get_lang(final_str);
-        }
-        
+	  final_str = "<unknown>";
+	} else {
+	  get_lang(final_str);
+	}
+	
       } else if (strcmp(i, "encoding") == 0) {
 
         get_encoding(*this, final_str);
 
       } else if (strcmp(i, "special") == 0) {
 
-        // do nothing
+	// do nothing
 
-      }
-#ifdef WIN32PORT
-      else if (strcmp(i, "prefix") == 0) {
-
-        char * buff = new char [MAX_PATH];
-        HMODULE hand = reinterpret_cast<HMODULE> (get_module_handle());
-        if (GetModuleFileName(hand, buff, MAX_PATH)) {
-          //convert all \ chars to /
-          for (char *ptr = buff; *ptr; ++ptr)
-            if ('\\' == *ptr)
-              *ptr = '/';
-          //snip off the filename leaving the path
-          char * end = strrchr(buff,'/');
-          if (end)
-            *end = 0;
-          final_str = buff;
-          delete [] buff;
-        } else {
-          printf("could not find install directory, !prefix");
-          final_str = ""; // this should not happen
-        }
-
-      } else if (strcmp(i, "home-dir") == 0) { 
-
-        //get the personal folder (e.g. "c:\My Documents")
-        char * dir = new char[MAX_PATH];
-        LPITEMIDLIST items = 0;
-        HRESULT hand = SHGetSpecialFolderLocation(0, CSIDL_PERSONAL, &items);
-        if ((NOERROR == hand) && items) {
-          if (SHGetPathFromIDList(items, dir)) {
-            for (char *ptr = dir; *ptr; ++ptr)
-              if ('\\' == *ptr)
-                *ptr = '/';
-            final_str = dir;
-          }
-          CoTaskMemFree(items);
-        }
-        delete [] dir;
-
-      }
-#endif
-      else {
+      } else {
       
-        fprintf(stderr, "!%s unimplemented", i);
-        abort(); // this should not happen
+	abort(); // this should not happen
       
       }
     
@@ -665,62 +617,61 @@ namespace acommon {
     
       if (!in_replace) {
 
-        if (*i == '<') {
-          in_replace = true;
-        } else {
-          final_str += *i;
-        }
+	if (*i == '<') {
+	  in_replace = true;
+	} else {
+	  final_str += *i;
+	}
 
       } else { // in_replace
       
-        if (*i == '/' || *i == ':' || *i == '|' || *i == '#' || *i == '^') {
-          char sep = *i;
-          String second;
-          ++i;
-          while (*i != '\0' && *i != '>') second += *i++;
-          if (sep == '/') {
-            String s1 = retrieve(replace);
-            String s2 = retrieve(second);
-            final_str += add_possible_dir(s1, s2);
-          } else if (sep == ':') {
-            String s1 = retrieve(replace);
-            final_str += add_possible_dir(s1, second);
-          } else if (sep == '#') {
-            String s1 = retrieve(replace);
-            assert(second.size() == 1);
-            unsigned int s = 0;
-            while (s != s1.size() && s1[s] != second[0]) ++s;
-            final_str.append(s1, s);
-          } else if (sep == '^') {
-            String s1 = retrieve(replace);
-            String s2 = retrieve(second);
-            final_str += figure_out_dir(s1, s2);
-          } else { // sep == '|'
-            assert(replace[0] == '$');
-            const char * env = getenv(replace.c_str()+1);
-            final_str += env ? env : second;
-          }
-          replace = "";
-          in_replace = false;
+	if (*i == '/' || *i == ':' || *i == '|' || *i == '#' || *i == '^') {
+	  char sep = *i;
+	  String second;
+	  ++i;
+	  while (*i != '\0' && *i != '>') second += *i++;
+	  if (sep == '/') {
+	    String s1 = retrieve(replace);
+	    String s2 = retrieve(second);
+	    final_str += add_possible_dir(s1, s2);
+	  } else if (sep == ':') {
+	    String s1 = retrieve(replace);
+	    final_str += add_possible_dir(s1, second);
+	  } else if (sep == '#') {
+	    String s1 = retrieve(replace);
+	    assert(second.size() == 1);
+	    unsigned int s = 0;
+	    while (s != s1.size() && s1[s] != second[0]) ++s;
+	    final_str.append(s1, s);
+	  } else if (sep == '^') {
+	    String s1 = retrieve(replace);
+	    String s2 = retrieve(second);
+	    final_str += figure_out_dir(s1, s2);
+	  } else { // sep == '|'
+	    assert(replace[0] == '$');
+	    const char * env = getenv(replace.c_str()+1);
+	    final_str += env ? env : second;
+	  }
+	  replace = "";
+	  in_replace = false;
 
-        } else if (*i == '>') {
+	} else if (*i == '>') {
 
-          final_str += retrieve(replace).data;
-          replace = "";
-          in_replace = false;
+	  final_str += retrieve(replace).data;
+	  replace = "";
+	  in_replace = false;
 
-        } else {
+	} else {
 
-          replace += *i;
+	  replace += *i;
 
-        }
+	}
 
       }
       
     }
     return final_str;
   }
-
 
   PosibErr<String> Config::get_default(ParmStr key) const
   {
@@ -1110,34 +1061,34 @@ namespace acommon {
 
     const KeyInfo * next() {
       if (i == cd->keyinfo_end) {
-        if (include_extra)
-          i = cd->extra_begin;
-        else
-          i = cd->extra_end;
+	if (include_extra)
+	  i = cd->extra_begin;
+	else
+	  i = cd->extra_end;
       }
       
       module_changed = false;
       if (i == cd->extra_end) {
-        m = cd->filter_modules.pbegin();
-        if (!include_modules || m == cd->filter_modules.pend()) return 0;
-        else {
+	m = cd->filter_modules.pbegin();
+	if (!include_modules || m == cd->filter_modules.pend()) return 0;
+	else {
           i = m->begin;
           module_changed = true;
         }
       }
 
       if (m == 0){
-        return i++;
+	return i++;
       }
 
       if (m == cd->filter_modules.pend()){
-        return 0;
+	return 0;
       }
 
       while (i == m->end) {
-        ++m;
-        if (m == cd->filter_modules.pend()) return 0;
-        else {
+	++m;
+	if (m == cd->filter_modules.pend()) return 0;
+	else {
           i = m->begin;
           module_changed = true;
         }
@@ -1220,7 +1171,7 @@ namespace acommon {
   }
 
   void Config::write_to_stream(OStream & out, 
-                               bool include_extra) 
+			       bool include_extra) 
   {
     KeyInfoEnumeration * els = possible_elements(include_extra);
     const KeyInfo * i;
@@ -1251,7 +1202,7 @@ namespace acommon {
       obuf.printf("# %s (%s)\n#   %s\n",
                   i->name, _(keyinfo_type_name[i->type]), _(i->desc));
       if (i->def != 0) {
-        if (i->type != KeyInfoList) {
+	if (i->type != KeyInfoList) {
           buf.resize(strlen(i->def) * 2 + 1);
           escape(buf.data(), i->def);
           obuf.printf("# default: %s", buf.data());
@@ -1263,18 +1214,18 @@ namespace acommon {
           }
           obuf << '\n';
           const Entry * entry = lookup(i->name);
-          if (entry) {
+	  if (entry) {
             have_value = true;
             buf.resize(entry->value.size() * 2 + 1);
             escape(buf.data(), entry->value.str());
-            obuf.printf("%s %s\n", i->name, buf.data());
+	    obuf.printf("%s %s\n", i->name, buf.data());
           }
-        } else {
+	} else {
           unsigned s = obuf.size();
           ListDump ld(obuf, i->name);
           lookup_list(i, ld, false);
           have_value = s != obuf.size();
-        }
+	}
       }
       obuf << '\n';
       if (!(i->flags & KEYINFO_HIDDEN) || have_value)
@@ -1386,11 +1337,8 @@ namespace acommon {
     return no_err;
   }
 
-#if defined(WIN32_USE_PERSONAL_DIR)
-#  define HOME_DIR "!home-dir"
-#  define PERSONAL "<lang>.pws"
-#  define REPL     "<lang>.prepl"
-#elif defined(ENABLE_WIN32_RELOCATABLE)
+
+#ifdef ENABLE_WIN32_RELOCATABLE
 #  define HOME_DIR "<prefix>"
 #  define PERSONAL "<lang>.pws"
 #  define REPL     "<lang>.prepl"
@@ -1438,7 +1386,7 @@ namespace acommon {
        /* TRANSLATORS: It is OK if this is longer than 50 chars */
        N_("ignore accents when checking words -- CURRENTLY IGNORED"), KEYINFO_MAY_CHANGE | KEYINFO_HIDDEN}
     , {"ignore-case", KeyInfoBool  , "false",
-       N_("ignore case when checking words"), KEYINFO_MAY_CHANGE | KEYINFO_HIDDEN}
+       N_("ignore case when checking words"), KEYINFO_MAY_CHANGE}
     , {"ignore-repl", KeyInfoBool  , "false",
        N_("ignore commands to store replacement pairs"), KEYINFO_MAY_CHANGE}
     , {"jargon",     KeyInfoString, "",
@@ -1514,12 +1462,7 @@ namespace acommon {
        N_("search path for word list information files"), KEYINFO_HIDDEN}
     , {"warn", KeyInfoBool, "true",
        N_("enable warnings")}
-#ifdef WIN32PORT
-    , {"dict-subdir", KeyInfoString, "dicts",
-       N_("sub directory for dictionaries")}
-    , {"data-subdir", KeyInfoString, "data",
-       N_("sub directory for other data")}
-#endif
+    
     
     //
     // These options are generally used when creating dictionaries
@@ -1564,7 +1507,6 @@ namespace acommon {
        N_("suggest possible replacements"), KEYINFO_MAY_CHANGE}
     , {"time"   , KeyInfoBool, "false",
        N_("time load time and suggest time in pipe mode"), KEYINFO_MAY_CHANGE}
-
     };
 
   const KeyInfo * config_impl_keys_begin = config_keys;
@@ -1574,8 +1516,8 @@ namespace acommon {
   Config * new_basic_config() { 
     aspell_gettext_init();
     return new Config("aspell",
-                      config_impl_keys_begin,
-                      config_impl_keys_end);
+		      config_impl_keys_begin,
+		      config_impl_keys_end);
   }
   
 }
