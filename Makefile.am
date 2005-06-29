@@ -1,4 +1,4 @@
-UTOMAKE_OPTIONS = foreign subdir-objects
+AUTOMAKE_OPTIONS = foreign subdir-objects
 SUBDIRS = . po manual
 DIST_SUBDIRS = ${SUBDIRS} examples myspell lib5
 
@@ -7,6 +7,7 @@ pkgdatadir = @pkgdatadir@
 pkglibdir = @pkglibdir@
 
 filterdir = ${pkglibdir}
+optdir = ${pkgdatadir}
 localedir = ${datadir}/locale
 
 PERLPROG = @PERLPROG@
@@ -17,7 +18,6 @@ AM_CPPFLAGS = -I${srcdir}/gen -I${srcdir}/common \
 SUFFIXES = .info
 
 noinst_DATA = 
-pkgdata_DATA = 
 EXTRA_DIST = win32/Makefile win32/settings.h
 
 ########################################################################
@@ -48,7 +48,6 @@ libaspell_la_SOURCES =\
   common/info.cpp\
   common/can_have_error.cpp\
   common/convert.cpp\
-  common/convert_filter.cpp\
   common/tokenizer.cpp\
   common/speller.cpp\
   common/document_checker.cpp\
@@ -95,9 +94,9 @@ libaspell_la_SOURCES =\
 libaspell_la_LIBADD =  $(LIBINTL) $(PTHREAD_LIB)
 
 if INCREMENTED_SONAME
-libaspell_la_LDFLAGS = -version-info 16:2:0 -no-undefined
+libaspell_la_LDFLAGS = -version-info 16:3:0 -no-undefined
 else
-libaspell_la_LDFLAGS = -version-info 16:2:1 -no-undefined
+libaspell_la_LDFLAGS = -version-info 16:3:1 -no-undefined
 endif
 
 if PSPELL_COMPATIBILITY
@@ -106,9 +105,9 @@ libpspell_la_SOURCES = lib/dummy.cpp
 libpspell_la_LIBADD = libaspell.la
 
 if INCREMENTED_SONAME
-libpspell_la_LDFLAGS = -version-info 16:2:0 -no-undefined
+libpspell_la_LDFLAGS = -version-info 16:3:0 -no-undefined
 else
-libpspell_la_LDFLAGS = -version-info 16:2:1 -no-undefined
+libpspell_la_LDFLAGS = -version-info 16:3:1 -no-undefined
 endif
 
 endif
@@ -141,16 +140,11 @@ EXTRA_DIST += prog/*.hpp
 # Filter Modules
 #
 
-# This is for filters which are ALWAYS static.  
-# The url filter is always usefull and fairly simple.
-# The genconv filter is mostly defined in the main aspell libarary
-#   since it is used by other filters.  The actual genconv filter
-#   is just a small wrapper.
+# This is for filters which are ALWAYS static.  Currently only the
+# URL filter
 
-libaspell_la_SOURCES += modules/filter/url.cpp  \
-                        modules/filter/genconv.cpp
-static_optfiles = modules/filter/url-filter.info\
-                  modules/filter/genconv-filter.info
+libaspell_la_SOURCES += modules/filter/url.cpp
+static_optfiles = modules/filter/url-filter.info
 
 dynamic_optfiles = 
 
@@ -166,22 +160,10 @@ optfiles = \
   modules/filter/html-filter.info\
   modules/filter/context-filter.info\
   modules/filter/nroff-filter.info\
-  modules/filter/texinfo-filter.info\
-  modules/filter/genconv-filter.info
-
-### Add any extra data files your filter uses here
-fltdata = \
-  modules/filter/tex.conv\
-  modules/filter/texinfo.conv
-
-### Add any extra files that should be included with the distribution
-### but not installed
-fltextra = \
-  modules/filter/mk-tex.conv.pl\
-  modules/filter/mk-texinfo.conv.pl
+  modules/filter/texinfo-filter.info
 
 ### Add all your aspell mode files ###
-fltmodes = \
+fltfiles = \
   modules/filter/modes/html.amf \
   modules/filter/modes/sgml.amf \
   modules/filter/modes/tex.amf \
@@ -207,8 +189,7 @@ libaspell_la_SOURCES +=\
   modules/filter/sgml.cpp\
   modules/filter/context.cpp\
   modules/filter/nroff.cpp\
-  modules/filter/texinfo.cpp\
-  modules/filter/genconv.cpp
+  modules/filter/texinfo.cpp
 
 else # not COMPILE_IN_FILTERS
 
@@ -219,8 +200,7 @@ filter_ldflags = -module -avoid-version
 ### must look like lib<filtername>-filter.la see development manual
 filter_LTLIBRARIES = email-filter.la tex-filter.la\
 	             sgml-filter.la context-filter.la\
-                     nroff-filter.la texinfo-filter.la\
-                     genconv-filter.la
+                     nroff-filter.la texinfo-filter.la
 
 email_filter_la_SOURCES = modules/filter/email.cpp
 email_filter_la_LIBADD = libaspell.la 
@@ -246,10 +226,6 @@ texinfo_filter_la_SOURCES  = modules/filter/texinfo.cpp
 texinfo_filter_la_LIBADD = libaspell.la
 texinfo_filter_la_LDFLAGS  = ${filter_ldflags}
 
-genconv_filter_la_SOURCES  = modules/filter/genconv.cpp
-genconv_filter_la_LIBADD = libaspell.la
-genconv_filter_la_LDFLAGS  = ${filter_ldflags}
-
 ### Before this line add the corresponding <yourfilterlibrary>_SOURCES and
 ### <yourfilterlibrary>_LIBADD lines.  The later at least has to look
 ### like <yourfilterlibrary>_LIBADD = ${top_builddir}/lib/libaspell.la
@@ -258,7 +234,8 @@ genconv_filter_la_LDFLAGS  = ${filter_ldflags}
 endif # COMPILE_IN_FILTERS
 
 noinst_DATA += $(static_optfiles) gen/filter.pot
-pkgdata_DATA += $(dynamic_optfiles) $(fltmodes) $(fltdata)
+opt_DATA = $(dynamic_optfiles)
+filter_DATA = $(fltfiles)
 
 # settings.h added as a dependency so it will get recreated if
 #   the COMPILE_IN_FILTERS option changes
@@ -270,8 +247,7 @@ lib/new_filter.cpp: gen/static_filters.src.cpp
 gen/filter.pot: gen/mk-filter-pot.pl ${static_optfiles} ${dynamic_optfiles}
 	${PERLPROG} gen/mk-filter-pot.pl
 
-EXTRA_DIST += ${static_optfiles} ${dynamic_optfiles} \
-              ${fltmodes} ${fltdata} ${fltextra}\
+EXTRA_DIST += ${static_optfiles} ${dynamic_optfiles} ${fltfiles} \
               gen/mk-static-filter.pl gen/mk-filter-pot.pl\
               gen/filter.pot
 
@@ -366,7 +342,7 @@ endif
 # Misc Top level
 #
 
-pkgdata_DATA += \
+pkgdata_DATA = \
   data/cp1250.cmap data/cp1250.cset \
   data/cp1251.cmap data/cp1251.cset \
   data/cp1252.cmap data/cp1252.cset \
