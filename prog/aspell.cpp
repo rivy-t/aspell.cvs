@@ -1130,11 +1130,18 @@ void check()
     case Add:
       aspell_speller_add_to_personal(speller, word, -1);
       break;
-    case AddLower:
-      aspell_speller_add_to_personal
-        (speller, 
-         reinterpret_cast<Speller *>(speller)->to_lower(word), -1);
+    case AddLower: 
+    {
+      // Emulate the c function add_to_personal, but add extra step to
+      // convert word to lowercase.  Yeah its a bit of a hack.
+      Speller * sp = reinterpret_cast<Speller *>(speller);
+      sp->temp_str_0.clear();
+      sp->to_internal_->convert(word, -1, sp->temp_str_0);
+      char * lower = sp->to_lower(sp->temp_str_0.mstr());
+      PosibErr<void> ret = sp->add_to_personal(MutableString(lower));
+      sp->err_.reset(ret.release_err());
       break;
+    }
     case Replace:
     case ReplaceAll:
       // the string new_word is in the encoding of the document
