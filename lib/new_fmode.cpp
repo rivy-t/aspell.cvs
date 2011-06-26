@@ -277,10 +277,12 @@ namespace acommon {
   }
 
   void FilterMode::MagicString::remExtension(const String & ext) {
-    for ( Vector<String>::iterator it = fileExtensions.begin() ;
-          it != fileExtensions.end() ; it++ ) {
-      if ( *it == ext ) {
-        fileExtensions.erase(it);
+    Vector<String>::iterator it = fileExtensions.begin();
+    while (it != fileExtensions.end()) {
+      if (*it == ext) {
+        it = fileExtensions.erase(it);
+      } else {
+        it++;
       }
     }
   }
