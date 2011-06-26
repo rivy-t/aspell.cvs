@@ -7,7 +7,7 @@ AM_CONFIG_HEADER(gen/settings.h)
 AM_MAINTAINER_MODE
 
 AC_ARG_ENABLE(docdir, 
-  AS_HELP_STRING([--enable-docdir=DIR],[documentation files in DIR @<:@PREFIX/doc/aspell@:>@]),
+  AS_HELP_STRING([--enable-docdir=DIR],[documentation files in DIR @<:@PREFIX/share/doc/aspell@:>@]),
   pkgdocdir=$enable_docdir, pkgdocdir=\${prefix}/share/doc/aspell)
 AC_SUBST(pkgdocdir)
 
