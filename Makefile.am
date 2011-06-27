@@ -40,6 +40,7 @@ libaspell_la_SOURCES =\
   common/string_map.cpp\
   common/string_list.cpp\
   common/config.cpp\
+  common/version.cpp\
   common/posib_err.cpp\
   common/errors.cpp\
   common/error.cpp\

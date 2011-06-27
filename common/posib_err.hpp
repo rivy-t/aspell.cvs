@@ -12,6 +12,8 @@
 
 #include "errors.hpp"
 
+#include "ndebug.hpp"
+
 namespace acommon {
 
   // PosibErr<type> is a special Error handling device that will make
