@@ -344,11 +344,24 @@ namespace acommon {
     }
   };
 
+# define sanity(check) \
+    if (!(check)) return sanity_fail(__FILE__, FUNC, __LINE__, #check)
+
+  static PosibErrBase sanity_fail(const char * file, const char * func, 
+                                  unsigned line, const char * check_str) 
+  {
+    char mesg[500];
+    snprintf(mesg, 500, "%s:%d: %s: Assertion \"%s\" failed, likely to do bad input.",
+             file,  line, func, check_str);
+    return make_err(bad_input_error, mesg);
+  }
+
   template <class T>
   static PosibErr< NormTable<T> * > create_norm_table(IStream & in, String & buf)
   {
+    const char FUNC[] = "create_norm_table";
     const char * p = get_nb_line(in, buf);
-    assert(*p == 'N');
+    sanity(*p == 'N');
     ++p;
     int size = strtoul(p, (char **)&p, 10);
     VARARRAY(T, d, size);
@@ -361,14 +374,14 @@ namespace acommon {
     while (p = get_nb_line(in, buf), *p != '.') {
       Uni32 f = strtoul(p, (char **)&p, 16);
       cur->from = static_cast<typename T::From>(f);
-      assert(f == cur->from);
+      sanity(f == cur->from);
       tally0.add(f);
       tally1.add(f);
       tally2.add(f);
       ++p;
-      assert(*p == '>');
+      sanity(*p == '>');
       ++p;
-      assert(*p == ' ');
+      sanity(*p == ' ');
       ++p;
       unsigned i = 0;
       if (*p != '-') {
@@ -376,9 +389,9 @@ namespace acommon {
           const char * q = p;
           Uni32 t = strtoul(p, (char **)&p, 16);
           if (q == p) break;
-          assert(i < d->max_to);
+          sanity(i < d->max_to);
           cur->to[i] = static_cast<typename T::To>(t);
-          assert(t == static_cast<Uni32>(cur->to[i]));
+          sanity(t == static_cast<Uni32>(cur->to[i]));
         } 
       } else {
         cur->to[0] = 0;
@@ -388,7 +401,7 @@ namespace acommon {
       if (*p == '/') cur->sub_table = create_norm_table<T>(in,buf);
       ++cur;
     }
-    assert(cur - d == size);
+    sanity(cur - d == size);
     Tally * which = &tally0;
     if (which->max > tally1.max) which = &tally1;
     if (which->max > tally2.max) which = &tally2;
@@ -418,6 +431,7 @@ namespace acommon {
   PosibErr<NormTables *> NormTables::get_new(const String & encoding, 
                                              const Config * config)
   {
+    const char FUNC[] = "NormTables::get_new";
     String dir1,dir2,file_name;
     fill_data_dir(config, dir1, dir2);
     find_file(file_name,dir1,dir2,encoding,".cmap");
@@ -436,23 +450,23 @@ namespace acommon {
     String l;
     get_nb_line(in, l);
     remove_comments(l);
-    assert (l == "INTERNAL");
+    sanity (l == "INTERNAL");
     get_nb_line(in, l);
     remove_comments(l);
-    assert (l == "/");
+    sanity (l == "/");
     d->internal = create_norm_table<FromUniNormEntry>(in, l);
     get_nb_line(in, l);
     remove_comments(l);
-    assert (l == "STRICT");
+    sanity (l == "STRICT");
     char * p = get_nb_line(in, l);
     remove_comments(l);
     if (l == "/") {
       d->strict_d = create_norm_table<FromUniNormEntry>(in, l);
       d->strict = d->strict_d;
     } else {
-      assert(*p == '=');
+      sanity(*p == '=');
       ++p; ++p;
-      assert(strcmp(p, "INTERNAL") == 0);
+      sanity(strcmp(p, "INTERNAL") == 0);
       d->strict = d->internal;
     }
     while (get_nb_line(in, l)) {
@@ -467,12 +481,12 @@ namespace acommon {
       if (l == "/") {
         e.ptr = e.data = create_norm_table<ToUniNormEntry>(in,l);
       } else {
-        assert(*p == '=');
+        sanity(*p == '=');
         ++p; ++p;
         for (char * q = p; *q; ++q) *q = asc_tolower(*q);
         Vector<ToUniTable>::iterator i = d->to_uni.begin();
         while (i->name != p && i != d->to_uni.end()) ++i;
-        assert(i != d->to_uni.end());
+        sanity(i != d->to_uni.end());
         e.ptr = i->ptr;
         get_nb_line(in, l);
       }
