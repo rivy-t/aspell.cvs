@@ -673,7 +673,7 @@ namespace acommon {
             if ( regend == regbegin ) 
             {
               char charCount[64];
-              sprintf(&charCount[0],"%zi",regbegin - (char *)dp.value);
+              sprintf(&charCount[0],"%li",(long)(regbegin - (char *)dp.value));
               return  make_err(empty_file_ext,charCount).with_file(possModeFile,dp.line_num);
             }
 
@@ -691,7 +691,7 @@ namespace acommon {
             if ( regend == regbegin ) 
             {
               char charCount[64];
-              sprintf(&charCount[0],"%zi",regbegin - (char *)dp.value);
+              sprintf(&charCount[0],"%li",(long)(regbegin - (char *)dp.value));
               return  make_err(empty_file_ext,charCount).with_file(possModeFile,dp.line_num);
             }
             swap = *regend;
@@ -726,7 +726,7 @@ namespace acommon {
           if (extCount > 0 ) continue;
 
           char charCount[64];
-          sprintf(&charCount[0],"%zu",strlen((char *)dp.value));
+          sprintf(&charCount[0],"%lu",(unsigned long)strlen((char *)dp.value));
           return  make_err(empty_file_ext,charCount).with_file(possModeFile,dp.line_num);
         }
 
