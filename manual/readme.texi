@@ -138,7 +138,7 @@ filters as individual modules by using the
 
 Due to an oversight, Aspell compiled dictionaries not only depend on
 the endian order, they also depend on the the size of the
-@code{size_t} type, which is generally different between 32-bit and
+@code{size_t} type, which is generally different on 32 and
 64-bit systems.  The @code{size_t} type is used in the hash function
 of the compiled dictionaries.  To force the hash function to use a
 32-bit integer instead, use the @option{--enable-32-bit-hash-fun}

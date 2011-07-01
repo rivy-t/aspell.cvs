@@ -1821,7 +1821,7 @@ The compiled dictionaries are platform dependent.  They depend on the
 endian order and (unless compiled with the
 @option{--enable-32-bit-hash-fun} option) the size of the
 @code{size_t} type as it used in the hash function; this 
-type is generally different between 32-bit and 64-bit systems.  When a
+type is generally different on 32 and 64-bit systems.  When a
 dictionary is loaded the endian order and compatibility of the hash
 function is checked.  Please do not distribute the compiled
 dictionaries unless you are only distributing them for a particular
@@ -4264,6 +4264,29 @@ a C++ program.
 @node ChangeLog
 @appendix ChangeLog
 
+@heading Changes from 0.60.6 to 0.60.7 (July ??, 2011)
+@itemize @bullet
+@item
+Add partial support for recognizing the Unicode apostrophe (') in
+words.  In particular Aspell will accept the Unicode apostrophe when
+the language uses an ISO Latin charset that doesn't already have a
+Unicode apostrophe.  For now, Aspell will still use the ASCII version
+in suggestions.
+@item
+Detect when a dictionary compiled on a 32-bit machine is used on a
+64-bit one (and vise versa), as due to an oversight, compiled
+dictionaries depend on more than the endianness.  Also added a compile
+time option to remove this dependency, but at the cost of breaking
+compatibility with already compiled dictionaries on 64-bit systems.
+@item
+Make it very clear that compiling Aspell with NDEBUG is a bad idea
+(see @uref{http://aspell.net/ndebug.html}).  In particular output a
+warning when building with NDEBUG defined and include NDEBUG in the
+version string.
+@item
+Numerous bug fixes and minor enhancements.
+@end itemize
+
 @heading Changes from 0.60.5 to 0.60.6 (April 16, 2007)
 @itemize @bullet
 @item
@@ -4285,7 +4308,7 @@ Other minor updates and bug fixes.
 @heading Changes from 0.60.4 to 0.60.5 (December 18, 2006)
 @itemize @bullet
 @item
-Compile fix for gcc 4.1
+Compile fix for Gcc 4.1
 @item
 Updated to Gettext 0.16.1, Libtool 1.5.22, Automake 1.10, Autoconf 2.61
 @item
