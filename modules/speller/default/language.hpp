@@ -384,6 +384,7 @@ namespace aspeller {
     }
   };
   
+  template <typename HASH_INT = size_t>
   struct InsensitiveHash {
     // hashes a string without regards to casing or special begin
     // or end characters
@@ -391,9 +392,9 @@ namespace aspeller {
     InsensitiveHash() {}
     InsensitiveHash(const Language * l)
 	: lang(l) {}
-    size_t operator() (const char * s) const
+    HASH_INT operator() (const char * s) const
     {
-      size_t h = 0;
+      HASH_INT h = 0;
       for (;;) {
 	if (*s == 0) break;
         unsigned char c = lang->to_clean(*s++);

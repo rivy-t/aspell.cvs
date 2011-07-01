@@ -1817,10 +1817,15 @@ the options @option{--dont-skip-invalid-words} and
 @option{--dont-clean-affixes} can be specified to turn the warnings into
 errors.
 
-The compiled dictionary file are endian order dependent.  When a
-dictionary is loaded the endian order is checked.  Please do not
-distribute the compiled dictionaries unless you are only distributing
-them for a particular platform such as you would a binary.
+The compiled dictionaries are platform dependent.  They depend on the
+endian order and (unless compiled with the
+@option{--enable-32-bit-hash-fun} option) the size of the
+@code{size_t} type as it used in the hash function; this 
+type is generally different between 32-bit and 64-bit systems.  When a
+dictionary is loaded the endian order and compatibility of the hash
+function is checked.  Please do not distribute the compiled
+dictionaries unless you are only distributing them for a particular
+platform such as you would a binary.
 
 Aspell is now also able to use special @code{multi} dictionaries.  for
 more information @ref{How Aspell Selects an Appropriate Dictionary}.
