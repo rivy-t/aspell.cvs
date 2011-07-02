@@ -4279,6 +4279,9 @@ dictionaries depend on more than the endianness.  Also added a compile
 time option to remove this dependency, but at the cost of breaking
 compatibility with already compiled dictionaries on 64-bit systems.
 @item
+Fix a bug which caused a race condition (leading to a likely crash)
+when two threads try to update the dictionary cache at the same time.
+@item
 Make it very clear that compiling Aspell with NDEBUG is a bad idea
 (see @uref{http://aspell.net/ndebug.html}).  In particular output a
 warning when building with NDEBUG defined and include NDEBUG in the
