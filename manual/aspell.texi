@@ -4264,7 +4264,7 @@ a C++ program.
 @node ChangeLog
 @appendix ChangeLog
 
-@heading Changes from 0.60.6 to 0.60.7 (July ??, 2011)
+@heading Changes from 0.60.6.1 to 0.60.7 (??, 2011)
 @itemize @bullet
 @item
 Add partial support for recognizing the Unicode apostrophe (') in
@@ -4279,15 +4279,25 @@ dictionaries depend on more than the endianness.  Also added a compile
 time option to remove this dependency, but at the cost of breaking
 compatibility with already compiled dictionaries on 64-bit systems.
 @item
+In addition to outputting a warning when building with NDEBUG defined
+also include NDEBUG in the version string.
+@c @item
+@c Other minor updates and bug fixes.
+@end itemize
+
+@heading Changes from 0.60.6 to 0.60.6.1 (July ??, 2011)
+@itemize @bullet
+@item
+Update to Automake 1.10.3
+@item
 Fix a bug which caused a race condition (leading to a likely crash)
 when two threads try to update the dictionary cache at the same time.
 @item
 Make it very clear that compiling Aspell with NDEBUG is a bad idea
-(see @uref{http://aspell.net/ndebug.html}).  In particular output a
-warning when building with NDEBUG defined and include NDEBUG in the
-version string.
+(see @uref{http://aspell.net/ndebug.html}) by outputting a
+warning when building with NDEBUG defined.
 @item
-Numerous bug fixes and minor enhancements.
+Numerous other minor updates and bug fixes.
 @end itemize
 
 @heading Changes from 0.60.5 to 0.60.6 (April 16, 2007)
