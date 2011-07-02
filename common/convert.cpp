@@ -351,10 +351,14 @@ namespace acommon {
                                   unsigned line, const char * check_str) 
   {
     char mesg[500];
-    snprintf(mesg, 500, "%s:%d: %s: Assertion \"%s\" failed, likely to do bad input.",
+    snprintf(mesg, 500, "%s:%d: %s: Assertion \"%s\" failed.",
              file,  line, func, check_str);
     return make_err(bad_input_error, mesg);
   }
+# define CREATE_NORM_TABLE(T, in, buf, res) \
+  do { PosibErr<NormTable<T> *> pe( create_norm_table<T>(in,buf) );\
+       if (pe.has_err()) return PosibErrBase(pe); \
+       res = pe.data; } while(false)
 
   template <class T>
   static PosibErr< NormTable<T> * > create_norm_table(IStream & in, String & buf)
@@ -398,7 +402,7 @@ namespace acommon {
         cur->to[1] = T::to_non_char;
       }
       if (*p == ' ') ++p;
-      if (*p == '/') cur->sub_table = create_norm_table<T>(in,buf);
+      if (*p == '/') CREATE_NORM_TABLE(T, in, buf, cur->sub_table);
       ++cur;
     }
     sanity(cur - d == size);
@@ -428,10 +432,60 @@ namespace acommon {
     return final;
   }
 
+  static PosibErr<void> init_norm_tables(FStream & in, NormTables * d) 
+  {
+    const char FUNC[] = "init_norm_tables";
+    String l;
+    get_nb_line(in, l);
+    remove_comments(l);
+    sanity (l == "INTERNAL");
+    get_nb_line(in, l);
+    remove_comments(l);
+    sanity (l == "/");
+    CREATE_NORM_TABLE(FromUniNormEntry, in, l, d->internal);
+    get_nb_line(in, l);
+    remove_comments(l);
+    sanity (l == "STRICT");
+    char * p = get_nb_line(in, l);
+    remove_comments(l);
+    if (l == "/") {
+      CREATE_NORM_TABLE(FromUniNormEntry, in, l, d->strict_d);
+      d->strict = d->strict_d;
+    } else {
+      sanity(*p == '=');
+      ++p; ++p;
+      sanity(strcmp(p, "INTERNAL") == 0);
+      d->strict = d->internal;
+    }
+    while (get_nb_line(in, l)) {
+      remove_comments(l);
+      d->to_uni.push_back(NormTables::ToUniTable());
+      NormTables::ToUniTable & e = d->to_uni.back();
+      e.name.resize(l.size());
+      for (unsigned i = 0; i != l.size(); ++i)
+        e.name[i] = asc_tolower(l[i]);
+      char * p = get_nb_line(in, l);
+      remove_comments(l);
+      if (l == "/") {
+        CREATE_NORM_TABLE(ToUniNormEntry, in, l, e.data);
+        e.ptr = e.data;
+      } else {
+        sanity(*p == '=');
+        ++p; ++p;
+        for (char * q = p; *q; ++q) *q = asc_tolower(*q);
+        Vector<NormTables::ToUniTable>::iterator i = d->to_uni.begin();
+        while (i->name != p && i != d->to_uni.end()) ++i;
+        sanity(i != d->to_uni.end());
+        e.ptr = i->ptr;
+        get_nb_line(in, l);
+      }
+    }  
+    return no_err;
+  }
+
   PosibErr<NormTables *> NormTables::get_new(const String & encoding, 
                                              const Config * config)
   {
-    const char FUNC[] = "NormTables::get_new";
     String dir1,dir2,file_name;
     fill_data_dir(config, dir1, dir2);
     find_file(file_name,dir1,dir2,encoding,".cmap");
@@ -447,51 +501,13 @@ namespace acommon {
 
     NormTables * d = new NormTables;
     d->key = encoding;
-    String l;
-    get_nb_line(in, l);
-    remove_comments(l);
-    sanity (l == "INTERNAL");
-    get_nb_line(in, l);
-    remove_comments(l);
-    sanity (l == "/");
-    d->internal = create_norm_table<FromUniNormEntry>(in, l);
-    get_nb_line(in, l);
-    remove_comments(l);
-    sanity (l == "STRICT");
-    char * p = get_nb_line(in, l);
-    remove_comments(l);
-    if (l == "/") {
-      d->strict_d = create_norm_table<FromUniNormEntry>(in, l);
-      d->strict = d->strict_d;
-    } else {
-      sanity(*p == '=');
-      ++p; ++p;
-      sanity(strcmp(p, "INTERNAL") == 0);
-      d->strict = d->internal;
+    err = init_norm_tables(in, d);
+    if (err.has_err()) {
+      return make_err(bad_file_format, file_name, err.get_err()->mesg);
     }
-    while (get_nb_line(in, l)) {
-      remove_comments(l);
-      d->to_uni.push_back(ToUniTable());
-      ToUniTable & e = d->to_uni.back();
-      e.name.resize(l.size());
-      for (unsigned i = 0; i != l.size(); ++i)
-        e.name[i] = asc_tolower(l[i]);
-      char * p = get_nb_line(in, l);
-      remove_comments(l);
-      if (l == "/") {
-        e.ptr = e.data = create_norm_table<ToUniNormEntry>(in,l);
-      } else {
-        sanity(*p == '=');
-        ++p; ++p;
-        for (char * q = p; *q; ++q) *q = asc_tolower(*q);
-        Vector<ToUniTable>::iterator i = d->to_uni.begin();
-        while (i->name != p && i != d->to_uni.end()) ++i;
-        sanity(i != d->to_uni.end());
-        e.ptr = i->ptr;
-        get_nb_line(in, l);
-      }
-    }  
+
     return d;
+
   }
 
   NormTables::~NormTables()
