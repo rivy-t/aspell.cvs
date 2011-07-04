@@ -254,6 +254,7 @@ namespace {
     
     PosibErr<void> load(ParmString, Config &, DictList *, SpellerImpl *);
     PosibErr<void> check_hash_fun() const;
+    void low_level_dump() const;
 
     bool lookup(ParmString word, const SensitiveCompare *, WordEntry &) const;
 
@@ -301,6 +302,43 @@ namespace {
     return new Elements(first_word);
   }
 
+  void ReadOnlyDict::low_level_dump() const {
+    bool next_dup = false;
+    const char * w = first_word;
+    for (;;) {
+      if (get_offset(w) == 0) w += 2; // FIXME: This needs to be 3
+                                      //        when freq info is used
+      if (get_offset(w) == 0) break;
+      
+      const char * aff = get_affix(w);
+      byte flags = get_flags(w);
+      byte word_info = flags & WORD_INFO_MASK;
+      byte offset = get_offset(w);
+      int size = get_word_size(w);
+      if (next_dup) printf("\\");
+      printf("%s", w);
+      if (flags & HAVE_AFFIX_FLAG) printf("/%s", aff);
+      if (word_info) printf(" [WI: %d]", word_info);
+      //if (flags & DUPLICATE_FLAG) printf(" [NEXT DUP]");
+      const char * p = w;
+      WordLookup::const_iterator i = word_lookup.find(w);
+      if (!next_dup) {
+        if (i == word_lookup.end())
+          printf(" <BAD HASH>");
+        else if (word_block + *i != w) {
+          printf(" <BAD HASH, got %s>", word_block + *i);
+        }
+        else 
+          printf(" <hash ok>");
+      }
+      printf("\n");
+      String buf;
+      if (flags & DUPLICATE_FLAG) next_dup = true;
+      else next_dup = false;
+      w = get_next(w);
+    }
+  }
+  
   PosibErr<void> ReadOnlyDict::check_hash_fun() const {
     const char * w = first_word;
     for (;;) {
@@ -468,6 +506,7 @@ namespace {
     word_lookup.vector().set(begin, begin + data_head.word_buckets);
     word_lookup.set_size(data_head.word_count);
     
+    //low_level_dump();
     RET_ON_ERR(check_hash_fun());
     
     return no_err;
