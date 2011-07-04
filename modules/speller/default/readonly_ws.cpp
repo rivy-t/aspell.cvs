@@ -359,7 +359,7 @@ namespace {
         WordLookup::const_iterator i = word_lookup.find(w);
         if (i == word_lookup.end() || word_block + *i != w)
           return make_err(bad_file_format, file_name(), 
-                          _("Incompatible hash function. "));
+                          _("Incompatible hash function."));
         else
           return no_err;
       }
