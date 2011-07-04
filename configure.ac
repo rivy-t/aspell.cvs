@@ -209,7 +209,8 @@ AC_MSG_CHECKING(if file ino is supported)
 touch conftest-f1
 touch conftest-f2
 AC_TRY_RUN(
-  [#include <sys/stat.h>
+  [#include <stdlib.h>
+   #include <sys/stat.h>
    int main() {
      struct stat s1,s2;
      if (stat("conftest-f1",&s1) != 0) exit(2);
@@ -355,7 +356,8 @@ then
       AC_TRY_LINK(
         [#include <ncursesw/curses.h>], [initscr()],
         [CURSES_LIB=-lncursesw
-         AC_DEFINE(CURSES_HEADER, <ncursesw/curses.h>, [Defined to curses header file])])
+         AC_DEFINE(CURSES_HEADER, <ncursesw/curses.h>, [Defined to curses header file])
+         AC_DEFINE(TERM_HEADER, <ncursesw/term.h>, [Defined to term header file])])
     fi
 
     if test -z "$CURSES_LIB"
@@ -364,25 +366,29 @@ then
       AC_TRY_LINK(
         [#include <ncurses/curses.h>], [initscr()],
         [CURSES_LIB=-lncurses
-         AC_DEFINE(CURSES_HEADER, <ncurses/curses.h>, [Defined to curses header file])],
+         AC_DEFINE(CURSES_HEADER, <ncurses/curses.h>, [Defined to curses header file])
+         AC_DEFINE(TERM_HEADER, <ncurses/term.h>, [Defined to term header file])],
         [
       LIBS="-lncurses $ORIG_LIBS"
       AC_TRY_LINK(
         [#include <ncurses.h>], [initscr()],
         [CURSES_LIB=-lncurses
-         AC_DEFINE(CURSES_HEADER, <ncurses.h>, [Defined to curses header file])],
+         AC_DEFINE(CURSES_HEADER, <ncurses.h>, [Defined to curses header file])
+         AC_DEFINE(TERM_HEADER, <term.h>, [Defined to term header file])],
         [
       LIBS="-lcurses $ORIG_LIBS"
       AC_TRY_LINK(
         [#include <curses.h>], [initscr()],
         [CURSES_LIB=-lcurses
-         AC_DEFINE(CURSES_HEADER, <curses.h>, [Defined to curses header file])],
+         AC_DEFINE(CURSES_HEADER, <curses.h>, [Defined to curses header file])
+         AC_DEFINE(TERM_HEADER, <term.h>, [Defined to term header file])],
         [
       LIBS="-lncurses $ORIG_LIBS"
       AC_TRY_LINK(
         [#include <curses.h>], [initscr()],
-        [CURSES_LIB=-lcurses
-         AC_DEFINE(CURSES_HEADER, <curses.h>, [Defined to curses header file])],
+        [CURSES_LIB=-lncurses
+         AC_DEFINE(CURSES_HEADER, <curses.h>, [Defined to curses header file])
+         AC_DEFINE(TERM_HEADER, <term.h>, [Defined to term header file])],
       ) ]) ]) ])
     fi
 
@@ -396,6 +402,7 @@ then
   else
 
     AC_DEFINE(CURSES_HEADER, <curses.h>, [Defined to curses header file])
+    AC_DEFINE(TERM_HEADER, <term.h>, [Defined to term header file])
 
   fi
 
@@ -449,7 +456,7 @@ then
         #include <termios.h>
 	#include <unistd.h>
         #include CURSES_HEADER
-	#include <term.h>
+	#include TERM_HEADER
        ],
        [tigetstr(const_cast<char *>("cup"));],
        [AC_MSG_RESULT(yes)
