@@ -38,7 +38,7 @@ public: // but don't use
 private:
   HashTable<Parms> lookup_;
   ObjStack buffer_;
-  const char empty_str[1];
+  /*const */ char empty_str[1];
 
   void copy(const StringMap & other);
   
