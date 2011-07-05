@@ -1,11 +1,11 @@
 \input texinfo   @c -*-texinfo-*-
 
 @setfilename aspell.info
-@settitle GNU Aspell 0.60.6.1
+@settitle GNU Aspell 0.60.7-pre
 @syncodeindex pg cp
 @documentencoding ISO-8859-1
 @documentdescription
-Aspell 0.60.6.1 spell checker user's manual.
+Aspell 0.60.7-pre spell checker user's manual.
 @end documentdescription
 
 @copying
@@ -32,7 +32,7 @@ Documentation License".
 @end direntry
 
 @titlepage
-@title GNU Aspell 0.60.6.1
+@title GNU Aspell 0.60.7-pre
 @author Kevin Atkinson (@email{kevina@@gnu.org})
 @page
 @vskip 0pt plus 1filll
@@ -43,7 +43,7 @@ Documentation License".
 
 @ifnottex
 @node Top
-@top GNU Aspell 0.60.6.1
+@top GNU Aspell 0.60.7-pre
 This is the user's manual for Aspell
 
 GNU Aspell is a spell checker designed to eventually replace Ispell.
@@ -4281,8 +4281,8 @@ compatibility with already compiled dictionaries on 64-bit systems.
 @item
 In addition to outputting a warning when building with NDEBUG defined
 also include NDEBUG in the version string.
-@c @item
-@c Other minor updates and bug fixes.
+@item
+Other minor updates and bug fixes.
 @end itemize
 
 @heading Changes from 0.60.6 to 0.60.6.1 (July 4, 2011)
