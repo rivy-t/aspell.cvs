@@ -844,7 +844,7 @@ namespace acommon {
     ToUniLookup lookup;
     void decode(const char * in, int size, FilterCharVector & out) const {
       const char * stop = in + size; // this is OK even if size == -1
-      while (*in && in != stop) {
+      while (in != stop && *in) {
         out.append(from_utf8(in, stop));
       }
     }
@@ -852,7 +852,7 @@ namespace acommon {
                              FilterCharVector & out, ParmStr orig) const {
       const char * begin = in;
       const char * stop = in + size; // this is OK even if size == -1
-      while (*in && in != stop) {
+      while (in != stop && *in) {
         FilterChar c = from_utf8(in, stop, (Uni32)-1);
         if (c == (Uni32)-1) {
           char m[70];
