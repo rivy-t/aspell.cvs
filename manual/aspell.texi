@@ -4279,7 +4279,7 @@ dictionaries depend on more than the endianness.  Also added a compile
 time option to remove this dependency, but at the cost of breaking
 compatibility with already compiled dictionaries on 64-bit systems.
 @item
-In addition to outputting a warning when building with NDEBUG defined
+In addition to outputting a warning when building with NDEBUG defined,
 also include NDEBUG in the version string.
 @item
 Other minor updates and bug fixes.
