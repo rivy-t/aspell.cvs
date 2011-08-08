@@ -85,7 +85,7 @@ dnl [  --enable-aspell5-compatibility  install aspell 0.50 compatibility librari
 dnl
 
 AC_PROG_CXX
-if test "$GXX" = "yes" && expr "$CXXFLAGS" : '.*-O' > /dev/null
+if test "$GXX" = "yes" && expr x"$CXXFLAGS" : '.*-O' > /dev/null
 then
   CXXFLAGS="$CXXFLAGS -fno-exceptions"
 fi
