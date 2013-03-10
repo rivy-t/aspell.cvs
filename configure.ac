@@ -152,7 +152,7 @@ dnl         "$enable_aspell5_compatibility" = "yes"])
 dnl GETTEXT
 
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.16.1])
+AM_GNU_GETTEXT_VERSION([0.18.2])
 
 AH_TOP([#ifndef ASPELL_SETTINGS__H
 #define ASPELL_SETTINGS__H])
